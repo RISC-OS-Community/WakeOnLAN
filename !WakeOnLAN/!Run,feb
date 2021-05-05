@@ -1,0 +1,11 @@
+| WakeOnLAN Run file
+| by Paolo Fabio Zaino (c) 2004
+| released under Apache 2.0 license
+
+*Set WakeOnLAN$Dir <Obey$Dir>
+*<WakeOnLAN$Dir>.Utils.CmdToVar Territory$Str Territory
+*IfThere <WakeOnLAN$Dir>.Resources.<Territory$Str> Then Set Territory$Flag 1 Else Set Territory$Flag 0
+*If "<Ter$Flag>" = "0" Then Set Territory$Str UK
+*Run <WakeOnLAN$Dir>.Resources.<Territory$Str>.!Run
+*Unset Territory$Str
+*Unset Territory$Flag

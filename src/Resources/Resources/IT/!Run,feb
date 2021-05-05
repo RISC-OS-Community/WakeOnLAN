@@ -1,0 +1,18 @@
+| WakeOnLAN Run file
+| by Paolo Fabio Zaino (c) 2004
+| released under Apache 2.0 license
+
+*Set ErrHeader$Str Questa Applicazione richiede
+*If "<System$Path>" = "" Then Error 0 Non riesco a trovare le risorse !System
+*RMEnsure UtilityModule 3.10 Error <ErrHeader$Str> RISC OS versione 3.10 o successive
+*RMEnsure UtilityModule 5.00 RMEnsure CallASWI 0.03 RMLoad System:Modules.CallASWI
+*RMEnsure UtilityModule 5.00 RMEnsure CallASWI 0.03 Error <ErrHeader$Str> il modulo CallASWI versione 0.03 o successive
+*RMEnsure FPEmulator 4.03 RMLoad System:Modules.FPEmulator
+*RMEnsure FPEmulator 4.03 Error <ErrHeader$Str> il modulo FPEmulator versione 4.03 o successive
+*RMEnsure SharedCLibrary 5.17 RMLoad System:Modules.CLib
+*RMEnsure SharedCLibrary 5.34 Error <ErrHeader$Str> il modulo SharedCLibrary versione 5.34 o sucessive
+*RMEnsure TaskWindow 0.47 Error <ErrHeader$Str> il modulo Task Window (e' unplugged?)
+*RMEnsure FrontEnd 0 System:modules.frontend
+*RMEnsure Frontend 1.21 Error Hai bisogno di FrontEnd versione 1.21 or superiore per utilizzare !WakeOnLAN con il desktop
+*WimpSlot -Min 64k
+*FrontEnd_Start -app WakeOnLAN -desc <WakeOnLAN$Dir>.Resources.IT.desc

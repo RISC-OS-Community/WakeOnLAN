@@ -1,0 +1,4 @@
+*RMEnsure FrontEnd 0 System:modules.frontend
+*RMEnsure Frontend 1.13 Error You need version 1.13 of the FrontEnd module to run !WakeOnLAN
+*WimpSlot -min 16k
+*FrontEnd_SetUp -app %0 -desc %1 -task %2 -handle %3 -toolflags %4

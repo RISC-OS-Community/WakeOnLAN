@@ -1,0 +1,17 @@
+
+CC = gcc
+
+# Toolflags:
+CFLAGS  = -O2 -mthrowback -Wl,-s -LDSOLib:lib.abi-2/0 -ldl -c
+LDFLAGS = -o $@
+
+magic.o: magic.c
+	$(CC) $(CFLAGS) magic.c
+
+main.o: main.c
+	$(CC) $(CFLAGS) main.c
+
+WakeOnLAN: main.o magic.o
+	$(CC) $(LDFLAGS) magic.o main.o
+
+all: WakeOnLAN

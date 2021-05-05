@@ -1,0 +1,3 @@
+Dir <Obey$Dir>
+WimpSlot -min 16384k
+make all THROWBACK=-throwback -f MakeFileGCC
