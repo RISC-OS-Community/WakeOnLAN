@@ -56,4 +56,5 @@ WakeOnLAN is distribute under Apache License 2.0 (more details [here](LICENSE)) 
 Copyright (c) 2021 Paolo Fabio Zaino and contributors
 
 Contributors:
+
 [![Paolo](https://avatars2.githubusercontent.com/u/8824337?s=42&v=4)](https://github.com/pzaino)
