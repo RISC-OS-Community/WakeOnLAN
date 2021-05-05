@@ -1,0 +1,3 @@
+Dir <Obey$Dir>
+WimpSlot -min 1600K
+amu install INSTTYPE=app INSTDIR=<Obey$Dir> USERIF=Iyonix -f MakeFileDDE

@@ -1,0 +1,207 @@
+/*
+ * WakeOnLAN command for RISC OS
+ *
+ * release 0.1
+ * Copyright 2004 by Paolo Fabio Zaino
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions, the distribution license and the
+ * following disclaimer.
+ * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following
+ * disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ * Neither the name of the author nor the names of the contributors
+ * may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License
+ * the restrictions above and the disclaimer below.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <ctype.h>
+
+#ifdef __GNUC__
+	#include <unistd.h>
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netdb.h>
+#else
+#include "TCPIPLibs:sys.h.unistd"
+#include "TCPIPLibs:sys.h.types"
+#include "TCPIPLibs:sys.h.socket"
+#include "TCPIPLibs:netinet.h.in"
+#include "TCPIPLibs:netdb.h"
+#endif
+
+#include "magic.h"
+static verbose_output = 0;
+
+void show_syntax()
+{
+	printf("Syntax: *wakeonlan -m <mac address> [ -b <broadcast address> ] [-v]\n");
+	printf("        Where <mac address> has to be the MAC of the device you want to wake up. (MAC syntax: 01:02:03:04:05:06)\n");
+	printf("        And   <broadcast address> is a valid broadcast address for you LAN. (broadcast syntax: xxx.yyy.hhh.zzz\n");
+	printf("        -v specify you want verbose output\n");
+}
+
+void check_mac(unsigned int mac[], const char* user_input)
+{
+	// Parse Mac Address
+	int i = 0;
+	i = sscanf(user_input, "%x:%x:%x:%x:%x:%x", &(mac[0]), &(mac[1]), &(mac[2]), &(mac[3]), &(mac[4]), &(mac[5]));
+	if(i != 6)
+	{
+		printf("Invalid mac address: %s\n\n", user_input);
+		show_syntax();
+		exit(EXIT_FAILURE);
+	}
+}
+
+void check_broadcast(char bAddress[], const char *user_input )
+{
+	// Parse Broadcast Address
+	int i = 0;
+	i = sscanf(user_input, "%d.%d.%d.%d", &i, &i, &i, &i);
+	if(i == 4)
+	{
+		strcpy(bAddress, user_input);
+	}
+}
+
+int main(int argc, char** argv){
+	 // WakeOnLAN requires at least 2 arguments
+	if(argc < 2)
+	{
+		show_syntax();
+		exit(EXIT_FAILURE);
+	}
+
+	// bAddress is the default Broadcasting Address
+	// by default it's set to a commonly used address
+	char bAddress[16] = "192.168.0.255";
+
+	// Mac address
+	unsigned int mac[6];
+
+	// Packet Buffer
+	unsigned char packet[102];
+
+	// Set broadcast
+	int broadcast = 1;
+
+	// Socket address
+	struct sockaddr_in udpClient, udpServer;
+
+	int user_mac = 0;
+	int c = 0;
+	opterr = 0;
+	while (( c = getopt (argc, argv, "m:b:v")) != -1 )
+		switch (c)
+		{
+			case 'm':
+				check_mac( mac, optarg );
+				user_mac = 1;
+				break;
+			case 'b':
+				check_broadcast( bAddress, optarg );
+				break;
+			case 'v':
+				verbose_output = 1;
+				break;
+			case '?':
+				if ( optopt == 'm'|| optopt == 'b' )
+				{
+					printf("Option -%c requires an argument\n\n", optopt);
+					show_syntax();
+					exit(EXIT_FAILURE);
+				} else {
+					printf("Unknown option -%c\n\n", optopt);
+					show_syntax();
+					exit(EXIT_FAILURE);
+				 }
+			default:
+				abort();
+			}
+
+	if ( user_mac == 0 )
+	{
+		show_syntax();
+		exit(EXIT_FAILURE);
+	}
+	if (verbose_output)
+		printf("WOL message will be sent to %02hhx:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+	if (verbose_output)
+		printf("Using %s broadcast address\n", bAddress);
+
+	genMagicPacket(packet, mac);
+
+	int udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	if (udpSocket == -1)
+	{
+		printf("An error was encountered creating the UDP socket: '%s'.\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	int setsock_result = setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast);
+	if (setsock_result == -1)
+	{
+		printf("Failed to set socket options: '%s'.\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	udpClient.sin_family = AF_INET;
+	udpClient.sin_addr.s_addr = INADDR_ANY;
+	udpClient.sin_port = 0;
+
+	int bind_result = bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient));
+	if (bind_result == -1)
+	{
+		printf("Failed to bind socket: '%s'.\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	udpServer.sin_family = AF_INET;
+	udpServer.sin_addr.s_addr = inet_addr(bAddress);
+	udpServer.sin_port = htons(9);
+
+	// Send the packet
+	int result = sendto(udpSocket, &packet, sizeof(unsigned char) * 102, 0, (struct sockaddr*) &udpServer, sizeof(udpServer));
+	if (result == -1)
+	{
+		printf("Failed to send magic packet to socket: '%s'.\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	if (verbose_output)
+		printf("Wake up packet was sent.\n");
+
+	exit(EXIT_SUCCESS);
+}

@@ -1,0 +1,4 @@
+Dir <Obey$Dir>
+IfThere @.o Then wipe @.o ~V~C
+IfThere @.WakeOnLAN Then wipe @.WakeOnLAN ~V~C
+

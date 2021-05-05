@@ -1,0 +1,4 @@
+Dir <Obey$Dir>
+WimpSlot -min 1600K
+amu clean -f MakeFileDDE
+stripdepnd MakeFileDDE

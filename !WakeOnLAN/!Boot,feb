@@ -1,0 +1,12 @@
+| !Boot file for WakeOnLAN
+| by Paolo Fabio Zaino (c) 2004
+| released under Apache 2.0 license
+*<Obey$Dir>.Utils.CmdToVar Territory$Str Territory
+*Set WOLSetup$Flag 0
+*If "<WakeOnLAN$Dir>" = ""  Then Set WOLSetup$Flag 1
+*If "<WOLSetup$Flag>" = "1" Then Set WakeOnLAN$Dir <Obey$Dir>
+*If "<WOLSetup$Flag>" = "1" Then IconSprites <WakeOnLAN$Dir>.Resources.<Territory$Str>.!Sprites
+*If "<WOLSetup$Flag>" = "1" Then Alias WakeOnLAN <WakeOnLAN$Dir>.bin.WakeOnLAN %%0
+*Unset WOLSetup$Flag
+*Unset Territory$Str
+
