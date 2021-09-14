@@ -1,0 +1,25 @@
+Help for !WakeOnLAN
+~~~~~~~~~~~~~~~
+
+!WakeOnLAN (WOL) is a simple utility that can be used both on the RISC OS Desktop or in the CLI to wake up devices on the local network that supports WOL protocol.
+
+Given that !WakeOnLAN is usable via both the WIMP and the CLI it's a very usefu utility, because you could, for example, use it in some automation to ensure your NAS is awake before you start a backup. Or run it at a given time (or date) using !Alarm and so on and so forth. Of course you can use it manually via the WIMP or in a taskWindow as well.
+
+- Using !WakeOnLAN via CLI -
+When your RISC OS Filer has seen the !WakeOnLAN app it will create an alias that allow you to call !WakeOnLAN simply using:
+
+*wakeonlan
+
+If you do that !WakeOnLAN will display an help message with its syntax, like this one:
+
+Syntax: *wakeonlan -m <mac address> [ -b <broadcast address> ] [-v]
+        Where <mac address> has to be the MAC of the device you want to wake up. (MAC syntax: 01:02:03:04:05:06)
+        And   <broadcast address> is a valid broadcast address for you LAN. (broadcast syntax: xxx.yyy.hhh.zzz
+        -v specify you want verbose output
+
+While if you double click on the !WakeOnLAN icon it will load on the desktop and you can use it via WIMP.
+
+Hope this utility will be useful to you, enjoy!
+All the best,
+- Paolo
+
