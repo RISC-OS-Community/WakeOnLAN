@@ -29,7 +29,7 @@ If applicable
 # Traceback
 
 ```
-Paste here logs here...
+Paste any logs here...
 ```
 
 # RISC OS Release
@@ -39,7 +39,7 @@ Type the full RISC OS release of the system where you had the issue, for example
 # Loaded Modules
 
 ```
-Paste here the list of loaded modules. The get the list open a TaskWindow and type: help modules, then copy and paste here the output.
+Paste here the list of loaded modules. To get the list open a TaskWindow and type: help modules, then copy and paste here the output.
 ```
 
 # Platform
@@ -52,6 +52,7 @@ Paste here the list of loaded modules. The get the list open a TaskWindow and ty
 [] - Acorn RiscPC StrongARM
 [] - Acorn RiscPC with Kinetic or Castle RiscPC
 [] - Acorn A7000/A7000+ or Castle A7000+
+[] - Raspberry Pi0 (all models)
 [] - Raspberry Pi1 (model A or B)
 [] - Raspberry Pi2 (all models)
 [] - Raspberry Pi3 (all models)
