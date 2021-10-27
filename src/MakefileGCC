@@ -15,3 +15,5 @@ WakeOnLAN: main.o magic.o
 	$(CC) $(LDFLAGS) magic.o main.o
 
 all: WakeOnLAN
+	IfThere @.^.Doc.!Help Then copy @.^.Doc.!Help @.^.!WakeOnLAN.!Help ~C N F
+	IfThere @.WakeOnLAN Then copy @.WakeOnLAN @.^.!WakeOnLAN.bin.WakeOnLAN  ~C N F
