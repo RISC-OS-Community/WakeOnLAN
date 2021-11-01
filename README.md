@@ -4,7 +4,7 @@ WakeOnLAN is a simple C Utility that allows RISC OS to send magic Wake-on-LAN pa
 In other words you can use this utility to wake up NAS devices, PCs and laptops that support the Wake-on-LAN feature. Each remote device will likely require this feature to be enabled, typically in the BIOS. Remote devices will also need to be connected to the same LAN as your RISC OS device.
 
 ## Tutorial
-A short [YouTube tutorial](https://youtu.be/wXA4Jsu6NZ0) is available demonstrating how to use this utility.
+A short [YouTube tutorial](https://youtu.be/DITiZoxlEBg) is available demonstrating how to use this utility.
 
 ## Usage
 You can use WakeOnLAN in two different ways:
