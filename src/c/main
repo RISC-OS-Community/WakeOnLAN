@@ -48,22 +48,26 @@
 #include <string.h>
 #include <ctype.h>
 
-#ifdef __GNUC__
-	#include <unistd.h>
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netdb.h>
-#else
-#include "TCPIPLibs:sys.h.unistd"
-#include "TCPIPLibs:sys.h.types"
-#include "TCPIPLibs:sys.h.socket"
-#include "TCPIPLibs:netinet.h.in"
-#include "TCPIPLibs:netdb.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#ifndef __GNUC__
+#include "unixlib.h"
+#include "socklib.h"
+char *__progname = "WakeOnLan";
 #endif
 
 #include "magic.h"
+
 static verbose_output = 0;
+
+
+int sendMagicPacket(unsigned int mac[6], const char *broadcastAddress);
+
 
 void show_syntax()
 {
@@ -98,12 +102,6 @@ void check_broadcast(char bAddress[], const char *user_input )
 }
 
 int main(int argc, char** argv){
-	 // WakeOnLAN requires at least 2 arguments
-	if(argc < 2)
-	{
-		show_syntax();
-		exit(EXIT_FAILURE);
-	}
 
 	// bAddress is the default Broadcasting Address
 	// by default it's set to a commonly used address
@@ -112,18 +110,17 @@ int main(int argc, char** argv){
 	// Mac address
 	unsigned int mac[6];
 
-	// Packet Buffer
-	unsigned char packet[102];
-
-	// Set broadcast
-	int broadcast = 1;
-
-	// Socket address
-	struct sockaddr_in udpClient, udpServer;
-
 	int user_mac = 0;
 	int c = 0;
 	opterr = 0;
+
+	// WakeOnLAN requires at least 2 arguments
+	if(argc < 2)
+	{
+		show_syntax();
+		exit(EXIT_FAILURE);
+	}
+
 	while (( c = getopt (argc, argv, "m:b:v")) != -1 )
 		switch (c)
 		{
@@ -162,46 +159,82 @@ int main(int argc, char** argv){
 	if (verbose_output)
 		printf("Using %s broadcast address\n", bAddress);
 
+	if (!sendMagicPacket(mac, bAddress))
+	{
+		exit(EXIT_FAILURE);
+	}
+	exit(EXIT_SUCCESS);
+}
+
+
+/******************************************************************
+ Function:      sendMagicPacket
+ Description:   Send a wake-on-lan packet to a remote machine
+				Errors are printed to stdout.
+ Parameters:    mac-> list of 6 ints to send (only the low 8 bits of each int will be used)
+				broadcastAddress-> string representation of address to send to
+ Returns:       0 for success, 1 for failure
+ ******************************************************************/
+int sendMagicPacket(unsigned int mac[6], const char *broadcastAddress)
+{
+	// Packet Buffer
+	unsigned char packet[102];
+	int udpSocket;
+	int result;
+	int success = 0;
+
+	// Set broadcast
+	int broadcast = 1;
+
+	// Socket address
+	struct sockaddr_in udpClient, udpServer;
+
 	genMagicPacket(packet, mac);
 
-	int udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
+	udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
 	if (udpSocket == -1)
 	{
 		printf("An error was encountered creating the UDP socket: '%s'.\n", strerror(errno));
-		exit(EXIT_FAILURE);
+		goto cleanup;
 	}
-	int setsock_result = setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast);
-	if (setsock_result == -1)
+	result = setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast);
+	if (result == -1)
 	{
 		printf("Failed to set socket options: '%s'.\n", strerror(errno));
-		exit(EXIT_FAILURE);
+		goto cleanup;
 	}
 
 	udpClient.sin_family = AF_INET;
 	udpClient.sin_addr.s_addr = INADDR_ANY;
 	udpClient.sin_port = 0;
 
-	int bind_result = bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient));
-	if (bind_result == -1)
+	result = bind(udpSocket, (struct sockaddr*) &udpClient, sizeof(udpClient));
+	if (result == -1)
 	{
 		printf("Failed to bind socket: '%s'.\n", strerror(errno));
-		exit(EXIT_FAILURE);
+		goto cleanup;
 	}
 
 	udpServer.sin_family = AF_INET;
-	udpServer.sin_addr.s_addr = inet_addr(bAddress);
+	udpServer.sin_addr.s_addr = inet_addr(broadcastAddress);
 	udpServer.sin_port = htons(9);
 
 	// Send the packet
-	int result = sendto(udpSocket, &packet, sizeof(unsigned char) * 102, 0, (struct sockaddr*) &udpServer, sizeof(udpServer));
+	result = sendto(udpSocket, &packet, sizeof(unsigned char) * 102, 0, (struct sockaddr*) &udpServer, sizeof(udpServer));
 	if (result == -1)
 	{
 		printf("Failed to send magic packet to socket: '%s'.\n", strerror(errno));
-		exit(EXIT_FAILURE);
+		goto cleanup;
+	}
+	else
+	{
+		success = 1;
 	}
 
 	if (verbose_output)
 		printf("Wake up packet was sent.\n");
 
-	exit(EXIT_SUCCESS);
+cleanup:
+	socketclose(udpSocket);
+	return success;
 }
