@@ -1,5 +1,5 @@
-#ifdef  __WOL_MAGIC
-#define __WOL_MAGIC
+#ifndef WOL_MAGIC
+#define WOL_MAGIC
 
 /*
  * WakeOnLAN command for RISC OS

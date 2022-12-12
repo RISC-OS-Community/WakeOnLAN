@@ -1,0 +1,12 @@
+| Build on the RISC OS Build service
+
+Dir <Obey$Dir>
+cdir ^.Artifacts
+cdir ^.Artifacts.Library
+cdir ^.Artifacts.Library.Internet
+amu -f MakeFileROBuild install INSTDIR=^.Artifacts.Library.Internet
+if "<Sys$ReturnCode>" <> 0 Then Error Failed to build
+
+| Two LICENSE files are present, so must be supplied to the user.
+copy LICENSE ^.Artifacts.LICENSE/1   ~CVF
+copy ^.LICENSE ^.Artifacts.LICENSE/2 ~CVF

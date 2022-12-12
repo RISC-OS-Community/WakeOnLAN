@@ -1,0 +1,3 @@
+WakeOnLAN	{Module_FullVersionAndDate}
+*WakeOnLAN is used to send a magic network packet to a machine to cause it to wake up. The remote machine must be configured to accept such network packets.
+Syntax: *WakeOnLAN -m <mac address> [ -b <broadcast address> ] [-v]

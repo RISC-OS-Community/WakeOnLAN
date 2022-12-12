@@ -1,0 +1,33 @@
+%YAML 1.0
+---
+
+# RISC OS Build service build file
+# How to build manually on a non-RISC OS system:
+#   rm -f /tmp/source-archive.zip ; zip -9r /tmp/source-archive.zip .robuild.yaml src LICENSE ; riscos-build-online -i /tmp/source-archive.zip -o /tmp/built and unzip -l /tmp/built,a91
+
+# Defines a list of jobs which will be performed.
+# Only 1 job will currently be executed.
+jobs:
+  build:
+    # Env defines system variables which will be used within the environment.
+    # Multiple variables may be assigned.
+    env:
+      "Sys$Environment": ROBuild
+      "BUILD32": 1
+      "Locale": UK
+
+    # Directory to change to before running script
+    dir: src
+
+    # Commands which should be executed to perform the build.
+    # The build will terminate if any command returns a non-0 return code or an error.
+    script:
+      - /MkROBuild
+
+    # Outputs from the build are defined in artifacts
+    # These are a list of artifacts to report directories or files.
+    # Only a single item is currently supported.
+    artifacts:
+      # Each element of the artifacts should have a path key, which gives the file or
+      # directory to return.
+      - path: Artifacts
