@@ -1,7 +1,6 @@
 /*
  * WakeOnLAN command for RISC OS
  *
- * release 0.1
  * Copyright 2004 by Paolo Fabio Zaino
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,6 +60,8 @@
 char *__progname = "WakeOnLan";
 #endif
 
+#include "VersionNum"
+
 #include "magic.h"
 
 static verbose_output = 0;
@@ -71,7 +72,8 @@ int sendMagicPacket(unsigned int mac[6], const char *broadcastAddress);
 
 void show_syntax()
 {
-	printf("Syntax: *wakeonlan -m <mac address> [ -b <broadcast address> ] [-v]\n");
+	printf("WakeOnLAN %s\n", Module_FullVersionAndDate);
+	printf("Syntax: *WakeOnLAN -m <mac address> [ -b <broadcast address> ] [-v]\n");
 	printf("        Where <mac address> has to be the MAC of the device you want to wake up. (MAC syntax: 01:02:03:04:05:06)\n");
 	printf("        And   <broadcast address> is a valid broadcast address for you LAN. (broadcast syntax: xxx.yyy.hhh.zzz\n");
 	printf("        -v specify you want verbose output\n");
